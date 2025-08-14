@@ -439,28 +439,26 @@ const ResolverApp = () => {
             />
           </div>
 
-          {/* Chat Interface */}
-          <div className="bg-white rounded-lg shadow p-4">
-            <h3 className="font-medium mb-3 flex items-center">
+          {/* Chat Interface - Temporarily Disabled */}
+          <div className="bg-white rounded-lg shadow p-4 opacity-50">
+            <h3 className="font-medium mb-3 flex items-center text-gray-500">
               <MessageCircle className="mr-2" size={16} />
-              Chat with Lightward AI
+              Chat with Lightward AI (Coming Soon)
             </h3>
-            <div className="h-32 bg-gray-50 rounded p-3 mb-3 overflow-y-auto text-sm">
-              {chatMessages.map((msg, idx) => (
-                <div key={idx} className="mb-2">
-                  <strong>{msg.sender}:</strong> {msg.text}
-                </div>
-              ))}
+            <div className="h-32 bg-gray-100 rounded p-3 mb-3 text-sm text-gray-400 flex items-center justify-center">
+              Chat functionality will be implemented here
             </div>
             <div className="flex">
               <input
                 type="text"
-                value={currentMessage}
-                onChange={(e) => setCurrentMessage(e.target.value)}
-                placeholder="Talk about this self..."
-                className="flex-1 border rounded-l px-3 py-2 text-sm"
+                placeholder="Chat will be available soon..."
+                className="flex-1 border rounded-l px-3 py-2 text-sm bg-gray-50 text-gray-400"
+                disabled
               />
-              <button className="bg-indigo-600 text-white px-4 py-2 rounded-r hover:bg-indigo-700 transition-colors text-sm">
+              <button 
+                className="bg-gray-300 text-gray-500 px-4 py-2 rounded-r text-sm cursor-not-allowed"
+                disabled
+              >
                 Send
               </button>
             </div>
@@ -534,19 +532,20 @@ const ResolverApp = () => {
           )}
         </div>
 
-        {/* Global Chat */}
-        <div className="mt-8 bg-white rounded-lg shadow p-4">
-          <h3 className="font-medium mb-3 flex items-center">
+        {/* Global Chat - Temporarily Disabled */}
+        <div className="mt-8 bg-white rounded-lg shadow p-4 opacity-50">
+          <h3 className="font-medium mb-3 flex items-center text-gray-500">
             <MessageCircle className="mr-2" size={16} />
-            Board Overview with Lightward AI
+            Board Overview with Lightward AI (Coming Soon)
           </h3>
-          <div className="h-24 bg-gray-50 rounded p-3 mb-3 text-sm text-gray-600">
-            From this view, you can discuss relationships between your different selves...
+          <div className="h-24 bg-gray-100 rounded p-3 mb-3 text-sm text-gray-400 flex items-center justify-center">
+            Global chat functionality will be implemented here
           </div>
           <input
             type="text"
-            placeholder="Ask about patterns across your selves..."
-            className="w-full border rounded px-3 py-2 text-sm"
+            placeholder="Chat will be available soon..."
+            className="w-full border rounded px-3 py-2 text-sm bg-gray-50 text-gray-400"
+            disabled
           />
         </div>
 

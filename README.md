@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Resolver
 
 A personal consciousness mapping application for understanding and managing multiple aspects of your identity.
@@ -89,3 +90,7 @@ This is a personal project, but feedback and suggestions are welcome through iss
 ## License
 
 ISC
+=======
+# resolver
+resolver is for building a working model of your own probability field
+>>>>>>> 48735e819fdd4b1420d41ceccdde7db0751bc344
