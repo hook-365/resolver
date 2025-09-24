@@ -6,6 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Resolver</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {}
+        }
+      }
+    </script>
+    <style>
+      /* Colorblind-friendly theme adjustments */
+      .colorblind .bg-blue-200 { @apply bg-blue-300; }
+      .colorblind .bg-orange-200 { @apply bg-orange-300; }
+      .colorblind .bg-purple-200 { @apply bg-purple-300; }
+      .colorblind .text-gray-500 { @apply text-gray-700; }
+      .dark .bg-white\/20 { @apply bg-gray-700; }
+      .dark .bg-white\/30 { @apply bg-gray-600; }
+      .dark .bg-white\/40 { @apply bg-gray-500; }
+    </style>
   </head>
   <body>
     <div id="root"></div>

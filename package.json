@@ -2,22 +2,46 @@
   "name": "resolver",
   "version": "1.0.0",
   "type": "module",
-  "description": "",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "vite",
-    "build": "vite build"
+  "description": "A consciousness mapping application for understanding and managing multiple aspects of your identity",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/resolver.git"
   },
-  "keywords": [],
+  "keywords": [
+    "self-discovery",
+    "consciousness",
+    "identity",
+    "reflection",
+    "personal-growth",
+    "react",
+    "vite"
+  ],
+  "homepage": "https://github.com/yourusername/resolver#readme",
+  "bugs": {
+    "url": "https://github.com/yourusername/resolver/issues"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
+  },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "lucide-react": "^0.539.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.8.0",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@vitejs/plugin-react": "^4.7.0",
-    "vite": "^5.4.19"
+    "jsdom": "^27.0.0",
+    "vite": "^5.4.19",
+    "vitest": "^3.2.4"
   }
 }
