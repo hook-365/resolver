@@ -34,7 +34,7 @@ Resolver helps you model different "selves" - the various roles and identities y
 
 ```bash
 # Clone the repository
-git clone https://github.com/[yourusername]/resolver.git
+git clone https://github.com/hook-365/resolver.git
 cd resolver
 
 # Install dependencies
@@ -182,13 +182,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Contact & Support
 
-- **Issues**: [GitHub Issues](https://github.com/[yourusername]/resolver/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/[yourusername]/resolver/discussions)
+- **Issues**: [GitHub Issues](https://github.com/hook-365/resolver/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/hook-365/resolver/discussions)
 
 ---
 
 <div align="center">
   Made with ❤️ for self-discovery
   <br>
-  <a href="https://github.com/[yourusername]/resolver">View on GitHub</a>
+  <a href="https://github.com/hook-365/resolver">View on GitHub</a>
 </div>
