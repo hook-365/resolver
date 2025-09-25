@@ -151,10 +151,6 @@ This approach enables "intersubjective compatibility" - legitimizing your own ex
 - [x] **Multiple Themes** - Dark mode and colorblind-friendly themes
 - [x] **Markdown Notes** - Rich text notes with formatting
 - [x] **Custom Input Modals** - Better UX than browser prompts
-- [ ] **Export/Import** - Backup and restore your data
-- [ ] **Advanced Analytics** - Insights and patterns in your observations
-- [ ] **Collaboration** - Share specific selves with trusted contacts
-- [ ] **Mobile App** - Native iOS/Android applications
 
 ## 🤝 Contributing
 
