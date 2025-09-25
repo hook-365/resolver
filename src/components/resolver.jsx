@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, X, User, Brain, Trash2, Edit2, Save, AlertCircle, StickyNote, Palette, Sun, Moon, Eye } from 'lucide-react';
+import { Plus, X, User, Brain, Trash2, Edit2, Save, AlertCircle, StickyNote, Palette, Sun, Moon, Eye, HelpCircle } from 'lucide-react';
 import {
   validateSelfName,
   validateAuthorityName,
@@ -49,6 +49,8 @@ const ResolverApp = () => {
   const [showObservationModal, setShowObservationModal] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [tutorialMode, setTutorialMode] = useState(false);
+  const [tutorialStep, setTutorialStep] = useState(0);
 
   // Auto-save to localStorage whenever state changes
   useEffect(() => {
@@ -109,6 +111,26 @@ const ResolverApp = () => {
 
   const initializeEmpty = () => {
     setShowUserNameModal(true);
+  };
+
+  const initializeTutorial = () => {
+    // Start with a focused example of "Work Me"
+    const tutorialSelf = {
+      id: 1,
+      name: "Work Me",
+      observations: {
+        known: [],
+        knowable_1: [],
+        knowable_2: []
+      },
+      authority: { name: "", pointsToSelf: false }
+    };
+    setUser("Tutorial User");
+    setSelves([tutorialSelf]);
+    setFocusedSelf(tutorialSelf); // Auto-focus on the Work Me self
+    setTutorialMode(true);
+    setTutorialStep(1); // Start at step 1 (which is now the Known section)
+    setNotes('');
   };
 
   const handleUserNameSubmit = (name) => {
@@ -254,7 +276,12 @@ const ResolverApp = () => {
       e.preventDefault();
 
       const nameValidation = validateSelfName(name);
-      const authorityValidation = validateAuthorityName(authorityName);
+
+      // Only validate authority name if not self-directed
+      let authorityValidation = { isValid: true, value: '' };
+      if (!pointsToSelf) {
+        authorityValidation = validateAuthorityName(authorityName);
+      }
 
       if (!nameValidation.isValid || !authorityValidation.isValid) {
         setErrors({
@@ -266,7 +293,7 @@ const ResolverApp = () => {
 
       createSelf({
         name: sanitizeInput(nameValidation.value),
-        authorityName: sanitizeInput(authorityValidation.value),
+        authorityName: pointsToSelf ? 'Self' : sanitizeInput(authorityValidation.value),
         pointsToSelf
       });
       setName('');
@@ -281,7 +308,7 @@ const ResolverApp = () => {
           <h3 className="text-lg font-bold mb-4 dark:text-white">Create New Self</h3>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="selfName" className="block text-sm font-medium mb-1">Self Name</label>
+              <label htmlFor="selfName" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Self Name</label>
               <input
                 id="selfName"
                 type="text"
@@ -290,7 +317,7 @@ const ResolverApp = () => {
                   setName(e.target.value);
                   setErrors({ ...errors, name: '' });
                 }}
-                className={`w-full border rounded px-3 py-2 ${errors.name ? 'border-red-500' : ''}`}
+                className={`w-full border rounded px-3 py-2 dark:bg-gray-700 dark:text-white dark:border-gray-600 ${errors.name ? 'border-red-500' : ''}`}
                 placeholder="e.g., Work Me, Parent Me, Creative Me"
                 maxLength="50"
               />
@@ -302,7 +329,7 @@ const ResolverApp = () => {
               )}
             </div>
             <div>
-              <label htmlFor="authoritySource" className="block text-sm font-medium mb-1">Authority Source</label>
+              <label htmlFor="authoritySource" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Authority Source {!pointsToSelf && <span className="text-red-500">*</span>}</label>
               <input
                 id="authoritySource"
                 type="text"
@@ -311,8 +338,9 @@ const ResolverApp = () => {
                   setAuthorityName(e.target.value);
                   setErrors({ ...errors, authority: '' });
                 }}
-                className={`w-full border rounded px-3 py-2 ${errors.authority ? 'border-red-500' : ''}`}
-                placeholder="e.g., My Manager, My Values, Society"
+                className={`w-full border rounded px-3 py-2 dark:bg-gray-700 dark:text-white dark:border-gray-600 ${errors.authority ? 'border-red-500' : ''} ${pointsToSelf ? 'bg-gray-100 dark:bg-gray-800' : ''}`}
+                disabled={pointsToSelf}
+                placeholder={pointsToSelf ? "Self-directed (no external authority)" : "e.g., My Manager, My Values, Society"}
                 maxLength="50"
               />
               {errors.authority && (
@@ -330,7 +358,7 @@ const ResolverApp = () => {
                 onChange={(e) => setPointsToSelf(e.target.checked)}
                 className="mr-2"
               />
-              <label htmlFor="pointsToSelf" className="text-sm">
+              <label htmlFor="pointsToSelf" className="text-sm text-gray-700 dark:text-gray-300">
                 This self is self-directed (authority points to self)
               </label>
             </div>
@@ -338,7 +366,7 @@ const ResolverApp = () => {
               <button
                 type="button"
                 onClick={() => setShowCreateModal(false)}
-                className="px-4 py-2 border rounded hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
               >
                 Cancel
               </button>
@@ -498,7 +526,7 @@ const ResolverApp = () => {
           <div className="flex justify-end space-x-2">
             <button
               onClick={() => setShowDeleteConfirm(null)}
-              className="px-4 py-2 border rounded hover:bg-gray-50"
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
             >
               Cancel
             </button>
@@ -528,7 +556,7 @@ const ResolverApp = () => {
           <div className="flex justify-end space-x-2">
             <button
               onClick={() => setShowResetConfirm(false)}
-              className="px-4 py-2 border rounded hover:bg-gray-50"
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
             >
               Cancel
             </button>
@@ -552,12 +580,259 @@ const ResolverApp = () => {
     );
   };
 
+  // Helper function to get tutorial highlight styles
+  const getTutorialHighlight = (section) => {
+    if (!tutorialMode) return '';
+
+    const tutorialSteps = [
+      { step: 1, highlight: "known-section" },
+      { step: 2, highlight: "knowable-1-section" },
+      { step: 3, highlight: "knowable-2-section" },
+      { step: 4, highlight: "authority-section" },
+      { step: 5, highlight: "full-self" },
+      { step: 6, highlight: "exit-button" }
+    ];
+
+    const currentStep = tutorialSteps.find(s => s.step === tutorialStep);
+    if (currentStep && currentStep.highlight === section) {
+      // Use a more prominent highlight that stands out even in high contrast mode
+      return theme === 'colorblind'
+        ? 'ring-4 ring-green-500 ring-offset-4 animate-pulse shadow-2xl shadow-green-500/50'
+        : 'ring-4 ring-green-500 ring-offset-2 animate-pulse shadow-xl shadow-green-500/30';
+    }
+    return '';
+  };
+
+  // Tutorial Overlay Component
+  const TutorialOverlay = () => {
+    // Check which self we're working with
+    const isSocialMe = focusedSelf?.name === "Social Me";
+
+    const tutorialSteps = isSocialMe ? [
+      {
+        step: 1,
+        title: "What You Know For Sure",
+        content: "Think about your social self - who you are with friends. What do you know for certain about yourself in social settings? These are your core truths about how you connect with others.",
+        action: "Add what you know about your social self",
+        example: ["I genuinely care about my friends", "I need alone time to recharge", "I'm a good listener", "I prefer small groups over large parties", "I remember people's birthdays", "I avoid conflict even when necessary", "I value loyalty above most things"],
+        highlight: "known-section"
+      },
+      {
+        step: 2,
+        title: "Things You're Starting to Notice",
+        content: "What are you beginning to realize about your friendships and social life? These are insights emerging about how you relate to others - things you're starting to see but haven't fully accepted.",
+        action: "Add emerging social insights",
+        example: ["Maybe I give more than I receive", "People seem to trust me with secrets", "I might be avoiding deeper connections", "I'm attracted to people who need help", "My humor is a shield sometimes", "I feel drained after certain friendships", "I'm becoming more selective with my time"],
+        highlight: "knowable-1-section"
+      },
+      {
+        step: 3,
+        title: "The Deeper Shifts",
+        content: "What could fundamentally change how you see your social self? These are the big 'what ifs' about your relationships and social identity that could transform everything.",
+        action: "Add transformative social possibilities",
+        example: ["What if I don't need everyone to like me?", "What if vulnerability is strength?", "What if I've outgrown some friendships?", "What if quality matters more than quantity?", "What if saying no is actually kind?", "What if my boundaries are gifts?", "What if I'm already enough as I am?"],
+        highlight: "knowable-2-section"
+      },
+      {
+        step: 4,
+        title: "Who Validates Your Social Self?",
+        content: "In social settings, what tells you you're being a good friend or person? Is it your friends' reactions, social media, or your own sense of connection? Is this validation internal or external?",
+        action: "Name your social authority & check 'self-directed' if internal",
+        example: ["Friends' acceptance (external)", "Social expectations (external)", "My own values about friendship (internal)", "Instagram likes (external)", "Family opinions (external)", "My gut feeling (internal)", "Community standards (external)"],
+        highlight: "authority-section"
+      },
+      {
+        step: 5,
+        title: "How It All Works Together",
+        content: "Notice how your social self seeks validation? If it's external (friends' approval), you might change yourself to fit in. If internal (your values), you stay true even when it's uncomfortable. This shapes all your relationships.",
+        action: "See how authority affects your social interactions",
+        highlight: "full-self"
+      },
+      {
+        step: 6,
+        title: "You've Mapped Two Selves!",
+        content: "Amazing! Notice how different Work Me and Social Me are? Different truths, different authorities. You might be confident at work but insecure socially, or vice versa. This is the power of mapping multiple selves.",
+        action: "Tutorial complete! Explore your selves",
+        highlight: "exit-button"
+      }
+    ] : [
+      {
+        step: 1,
+        title: "What You Know For Sure",
+        content: "Let's start with what feels solid and true about your work self. What do you know about yourself at work? These are the things you're confident about - your core understanding of who you are professionally.",
+        action: "Add a few things you know about yourself at work",
+        example: ["I care about doing good work", "I'm good at solving problems", "I value being reliable", "I work better in the morning", "I'm detail-oriented", "I prefer clear deadlines", "I take pride in my expertise"],
+        highlight: "known-section"
+      },
+      {
+        step: 2,
+        title: "Things You're Starting to Notice",
+        content: "Knowable A is like your peripheral vision - things you're beginning to see but haven't fully looked at yet. These are observations that feel true but you haven't fully owned them. They're moving from unknown toward known.",
+        action: "Add things you're beginning to notice",
+        example: ["I might be taking on too much", "My team seems to trust me", "This role is changing me", "I say yes when I should say no", "My best ideas come outside meetings", "I'm outgrowing this position", "I work to avoid conflict"],
+        highlight: "knowable-1-section"
+      },
+      {
+        step: 3,
+        title: "The Deeper Shifts",
+        content: "Knowable B goes deeper - these are fundamental shifts that could rewrite your story. While Knowable A is 'what's emerging', Knowable B is 'what could transform everything'. The Unknown (that empty gray box) stays empty - it represents what you can't even imagine yet.",
+        action: "Add potential transformations",
+        example: ["What if my worth isn't tied to productivity?", "What if I'm in the wrong field?", "What if success looks completely different?", "What if work-life balance is possible?", "What if I could lead differently?", "What if my skills transfer elsewhere?", "What if less effort yields more?"],
+        highlight: "knowable-2-section"
+      },
+      {
+        step: 4,
+        title: "Who Validates This Self?",
+        content: "Every self needs validation. At work, who or what tells you you're doing okay - your boss, your standards, or yourself? Then decide: is this internal (you validate yourself) or external (you need outside approval)?",
+        action: "Name your authority & check 'self-directed' if it's internal",
+        example: ["Manager's approval (external)", "My own standards (internal)", "Team feedback (external)", "Performance reviews (external)", "Industry standards (external)", "My sense of craft (internal)", "Company values (external)"],
+        highlight: "authority-section"
+      },
+      {
+        step: 5,
+        title: "How It All Works Together",
+        content: "Here's the key insight: When what you 'know' isn't enough (like when you face a challenge), you turn to your authority for help. If it's external, you wait for validation. If it's internal, you validate yourself. This tension between self and authority drives all your growth.",
+        action: "Notice how your authority influences what moves from Knowable to Known",
+        highlight: "full-self"
+      },
+      {
+        step: 6,
+        title: "You've Mapped One Self!",
+        content: "Great job! You can create up to 3 different selves (Work Me, Parent Me, Friend Me, etc.). Each has its own Known/Knowable areas and authority. The magic happens when you see how differently each self operates. Ready to explore more?",
+        action: "Click 'Exit Focus' to complete or try 'Social Me' example",
+        highlight: "exit-button"
+      }
+    ];
+
+    const currentStepData = tutorialSteps.find(s => s.step === tutorialStep);
+
+    if (!tutorialMode || !currentStepData || tutorialStep === 0) return null;
+
+    // Determine position based on what's being highlighted
+    // Steps 1 (Known) and 2 (Knowable A) are on left side of grid, so panel goes right
+    // Step 3 (Knowable B) is on right side of grid, so panel goes left
+    // Step 4 (Authority) should be bottom-center and narrower to not block buttons
+    // Steps 5+ should be on left
+    let positionClass;
+    let widthClass = "w-72"; // default width
+
+    if (tutorialStep === 1 || tutorialStep === 2) {
+      positionClass = "top-20 right-4";  // Known and Knowable A - panel on right
+    } else if (tutorialStep === 4) {
+      positionClass = "bottom-4 left-1/2 transform -translate-x-1/2";  // Authority step - centered at bottom
+      widthClass = "w-64"; // narrower for step 4
+    } else {
+      positionClass = "top-20 left-4";  // Everything else - panel on left
+    }
+
+    return (
+      <>
+        {/* Tutorial guide panel - positioned dynamically */}
+        <div className={`fixed ${positionClass} ${widthClass} bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-4 z-30 border-2 border-green-500`}>
+          <div className="flex justify-between items-start mb-3">
+            <h3 className="text-sm font-bold text-green-600 dark:text-green-400">
+              Step {tutorialStep}/6: {currentStepData.title}
+            </h3>
+            <button
+              onClick={() => {
+                setTutorialMode(false);
+                setTutorialStep(0);
+              }}
+              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            >
+              <X size={20} />
+            </button>
+          </div>
+
+          <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
+            {currentStepData.content}
+          </p>
+
+          {currentStepData.example && Array.isArray(currentStepData.example) && (
+            <div className="bg-gray-50 dark:bg-gray-800 rounded p-3 mb-4">
+              <p className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-2">Examples:</p>
+              <ul className="text-xs text-gray-700 dark:text-gray-200 space-y-1">
+                {currentStepData.example.map((ex, i) => (
+                  <li key={i} className="flex items-start">
+                    <span className="text-green-500 mr-2">•</span>
+                    <span>{ex}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className="bg-green-50 dark:bg-green-900/20 rounded p-3 mb-4">
+            <p className="text-sm font-medium text-green-700 dark:text-green-400">
+              👉 {currentStepData.action}
+            </p>
+          </div>
+
+          <div className="flex justify-between">
+            {tutorialStep > 1 && (
+              <button
+                onClick={() => setTutorialStep(tutorialStep - 1)}
+                className="px-3 py-1 text-xs bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
+              >
+                Previous
+              </button>
+            )}
+            {tutorialStep < 6 && (
+              <button
+                onClick={() => setTutorialStep(tutorialStep + 1)}
+                className="px-3 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700 ml-auto"
+              >
+                Next Step
+              </button>
+            )}
+            {tutorialStep === 6 && (
+              <div className="flex gap-2 ml-auto">
+                {!isSocialMe && (
+                  <button
+                    onClick={() => {
+                      // Start Social Me tutorial
+                      const socialSelf = {
+                        id: 2,
+                        name: "Social Me",
+                        observations: {
+                          known: [],
+                          knowable_1: [],
+                          knowable_2: []
+                        },
+                        authority: { name: "", pointsToSelf: false }
+                      };
+                      setSelves(prev => [...prev, socialSelf]);
+                      setFocusedSelf(socialSelf);
+                      setTutorialStep(1);
+                    }}
+                    className="px-3 py-1 text-xs bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                  >
+                    Try Social Me
+                  </button>
+                )}
+                <button
+                  onClick={() => {
+                    setTutorialMode(false);
+                    setTutorialStep(0);
+                  }}
+                  className="px-3 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700"
+                >
+                  Finish
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </>
+    );
+  };
+
   // Theme Switcher Component
   const ThemeSwitcher = () => {
     const themes = [
       { id: 'light', name: 'Light', icon: Sun, colors: 'Default light theme' },
       { id: 'dark', name: 'Dark', icon: Moon, colors: 'Dark mode for low light' },
-      { id: 'colorblind', name: 'Colorblind', icon: Eye, colors: 'High contrast, colorblind-friendly' }
+      { id: 'colorblind', name: 'High Contrast', icon: Eye, colors: 'Enhanced visibility with symbols' }
     ];
 
     return (
@@ -605,7 +880,54 @@ const ResolverApp = () => {
     );
   };
 
-  const ObservationCard = ({ title, observations, category, color }) => {
+  // Privacy Footer Component
+  const PrivacyFooter = () => {
+    return (
+      <div className="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700 py-2 px-4 z-10">
+        <div className="max-w-6xl mx-auto flex items-center justify-center text-xs text-gray-500 dark:text-gray-400">
+          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+          <span>
+            Your data never leaves your browser. All information is stored locally on your device. No servers, no tracking, completely private.
+          </span>
+        </div>
+      </div>
+    );
+  };
+
+  // Tooltip Component
+  const Tooltip = ({ text }) => {
+    const [showTooltip, setShowTooltip] = useState(false);
+
+    return (
+      <div className="relative inline-block ml-1">
+        <button
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+          className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          type="button"
+        >
+          <HelpCircle size={14} />
+        </button>
+        {showTooltip && (
+          <div className="absolute z-50 w-48 p-2 text-xs bg-gray-900 text-white rounded-lg shadow-lg -top-2 left-6 pointer-events-none">
+            <div className="absolute w-2 h-2 bg-gray-900 transform rotate-45 -left-1 top-3"></div>
+            {text}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const ObservationCard = ({ title, observations, category, color, highlightClass = '' }) => {
+    // Help text for each section
+    const helpText = {
+      'known': 'What you currently understand about this self. Your established truths and core beliefs.',
+      'knowable_1': 'Emerging insights. Things moving from unconscious to conscious awareness.',
+      'knowable_2': 'Deeper possibilities. Transformative realizations that could change everything.',
+    };
+
     // Theme-aware color mapping
     const colorMap = {
       light: {
@@ -614,25 +936,46 @@ const ResolverApp = () => {
         'known': 'bg-blue-200'
       },
       dark: {
-        'knowable_1': 'bg-green-900',
-        'knowable_2': 'bg-yellow-900',
-        'known': 'bg-blue-900'
+        'knowable_1': 'bg-gradient-to-br from-emerald-600 to-teal-700',
+        'knowable_2': 'bg-gradient-to-br from-amber-600 to-orange-700',
+        'known': 'bg-gradient-to-br from-blue-600 to-indigo-700'
       },
       colorblind: {
-        'knowable_1': 'bg-blue-200 border-2 border-blue-600',
-        'knowable_2': 'bg-orange-200 border-2 border-orange-600',
-        'known': 'bg-purple-200 border-2 border-purple-600'
+        'knowable_1': 'bg-blue-100 border-2 border-blue-700',
+        'knowable_2': 'bg-amber-100 border-2 border-amber-700',
+        'known': 'bg-slate-100 border-2 border-slate-700'
       }
     };
 
     const themeColor = colorMap[theme]?.[category] || color;
 
+    // Add symbols for colorblind mode
+    const getSymbol = () => {
+      if (theme !== 'colorblind') return null;
+      const symbols = {
+        'known': '■', // Solid square for Known
+        'knowable_1': '◆', // Diamond for Knowable A
+        'knowable_2': '●', // Circle for Knowable B
+      };
+      return symbols[category] || '';
+    };
+
     return (
-    <div className={`${themeColor} p-4 rounded-lg`}>
-      <h4 className="font-medium mb-2 text-sm">{title}</h4>
+    <div className={`${themeColor} p-4 rounded-lg ${highlightClass}`}>
+      <h4 className="font-medium mb-2 text-sm flex items-center text-gray-900 dark:text-white">
+        {theme === 'colorblind' && (
+          <span className="mr-2 text-lg font-bold">{getSymbol()}</span>
+        )}
+        {title}
+        <Tooltip text={helpText[category]} />
+      </h4>
       <div className="space-y-1">
         {observations.map((obs, idx) => (
-          <div key={idx} className="flex items-start justify-between bg-white/20 dark:bg-gray-700/50 p-2 rounded text-xs dark:text-gray-300">
+          <div key={idx} className={`flex items-start justify-between p-2 rounded text-xs ${
+            theme === 'colorblind'
+              ? 'bg-white border-l-4 border-gray-700 text-gray-900 font-medium'
+              : 'bg-white/30 dark:bg-gray-800/70 text-gray-800 dark:text-gray-100'
+          }`}>
             <span className="flex-1">{obs}</span>
             {focusedSelf && (
               <button
@@ -662,34 +1005,89 @@ const ResolverApp = () => {
     return (
       <>
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 max-w-md text-center">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 max-w-md text-center relative">
             <Brain className="mx-auto mb-4 text-indigo-600" size={48} />
             <h1 className="text-2xl font-bold mb-4 dark:text-white">Resolver</h1>
+            <p className="text-gray-600 dark:text-gray-300 mb-4 text-sm leading-relaxed">
+              A tool for coming home to yourself so thoroughly that others can find you there too.
+            </p>
+
+            {/* Text-based theme toggle */}
+            <div className="flex justify-center mb-6">
+              <div className="inline-flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+                <button
+                  onClick={() => setTheme('light')}
+                  className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                    theme === 'light'
+                      ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                  }`}
+                >
+                  Light
+                </button>
+                <button
+                  onClick={() => setTheme('dark')}
+                  className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                    theme === 'dark'
+                      ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                  }`}
+                >
+                  Dark
+                </button>
+                <button
+                  onClick={() => setTheme('colorblind')}
+                  className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                    theme === 'colorblind'
+                      ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                  }`}
+                >
+                  High Contrast
+                </button>
+              </div>
+            </div>
+
             <p className="text-gray-600 dark:text-gray-300 mb-6 text-sm leading-relaxed">
-              This will probably feel like relief, followed by friction and frustration,
-              followed by breakthrough and then relief again. This product is simple to use,
-              but your experience may not be easy. I made this for me, first.
-              My experience of this was not easy. I made this so that it could be easier for you.
+              Based on the <a href="https://www.isaacbowen.com/2025/06/04/resolver"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-indigo-600 hover:text-indigo-800 underline dark:text-indigo-400">
+                Resolver pattern
+              </a>, this app helps you map your consciousness by modeling different "selves" -
+              the roles you embody in life. Each self has observations (what you know, what you could know)
+              and an authority structure that legitimizes its experience.
               <br/><br/>
-              We'll see how I did eh? :)
+              The journey: relief → friction → breakthrough → relief.
+              Simple to use, but not always easy to experience.
             </p>
             <div className="space-y-3">
               <button
-                onClick={initializeDemo}
-                className="w-full bg-indigo-600 text-white px-8 py-3 rounded-lg hover:bg-indigo-700 transition-colors"
+                onClick={initializeTutorial}
+                className="w-full bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
               >
-                begin with demo
+                <span className="block font-semibold">Interactive Tutorial</span>
+                <span className="block text-xs opacity-90 mt-1">Learn step-by-step with a real example</span>
+              </button>
+              <button
+                onClick={initializeDemo}
+                className="w-full bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors"
+              >
+                <span className="block font-semibold">Begin with Demo</span>
+                <span className="block text-xs opacity-90 mt-1">Explore with sample selves to understand the framework</span>
               </button>
               <button
                 onClick={initializeEmpty}
-                className="w-full bg-gray-600 text-white px-8 py-3 rounded-lg hover:bg-gray-700 transition-colors"
+                className="w-full bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
               >
-                start empty
+                <span className="block font-semibold">Start Empty</span>
+                <span className="block text-xs opacity-90 mt-1">Create your own selves from scratch</span>
               </button>
             </div>
           </div>
         </div>
         {showUserNameModal && <UserNameModal />}
+        <PrivacyFooter />
       </>
     );
   }
@@ -698,11 +1096,11 @@ const ResolverApp = () => {
   if (focusedSelf) {
     return (
       <>
-        <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 p-4">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 p-4 pb-12">
           <div className="max-w-4xl mx-auto">
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center space-x-3">
-              <User className="text-green-600" size={24} />
+              <User className="text-indigo-600 dark:text-indigo-400" size={24} />
               {editingSelf === focusedSelf.id ? (
                 <div className="flex items-center space-x-2">
                   <input
@@ -734,7 +1132,7 @@ const ResolverApp = () => {
                 </div>
               ) : (
                 <div className="flex items-center space-x-2">
-                  <h2 className="text-xl font-bold">{focusedSelf.name}</h2>
+                  <h2 className="text-xl font-bold dark:text-white">{focusedSelf.name}</h2>
                   <button
                     onClick={() => setEditingSelf(focusedSelf.id)}
                     className="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100"
@@ -754,7 +1152,7 @@ const ResolverApp = () => {
               </button>
               <button
                 onClick={exitFocus}
-                className="bg-gray-500 dark:bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-600 dark:hover:bg-gray-500 transition-colors text-sm"
+                className={`bg-gray-500 dark:bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-600 dark:hover:bg-gray-500 transition-colors text-sm ${getTutorialHighlight('exit-button')}`}
               >
                 Exit Focus
               </button>
@@ -762,10 +1160,17 @@ const ResolverApp = () => {
           </div>
 
           {/* Authority Chain */}
-          <div className="mb-6 p-4 bg-white/70 dark:bg-gray-800/70 rounded-lg">
+          <div className={`mb-6 p-4 rounded-lg ${
+            theme === 'colorblind'
+              ? 'bg-white border-2 border-indigo-700'
+              : 'bg-white/70 dark:bg-gray-800/70'
+          } ${getTutorialHighlight('authority-section')}`}>
             <div className="flex justify-between items-start">
               <div className="flex-1">
-                <h3 className="font-medium mb-2 text-sm dark:text-gray-300">Authority:</h3>
+                <h3 className="font-medium mb-2 text-sm dark:text-gray-300 flex items-center">
+                  Authority:
+                  <Tooltip text="The source of validation for this self. What or who helps this self resolve conflicts and integrate new understanding. Can be internal (self-directed) or external." />
+                </h3>
                 {editingAuthority === focusedSelf.id ? (
                   <div className="space-y-2">
                     <input
@@ -777,7 +1182,7 @@ const ResolverApp = () => {
                         if (input) input.authorityName = input.value;
                       }}
                     />
-                    <label className="flex items-center text-sm">
+                    <label className={`flex items-center text-sm ${getTutorialHighlight('authority-checkbox')}`}>
                       <input
                         type="checkbox"
                         defaultChecked={focusedSelf.authority.pointsToSelf}
@@ -787,6 +1192,7 @@ const ResolverApp = () => {
                         }}
                       />
                       Self-directed
+                      <Tooltip text="Check if this self validates itself internally. Uncheck if it needs external approval or validation." />
                     </label>
                     <div className="flex space-x-2">
                       <button
@@ -835,10 +1241,15 @@ const ResolverApp = () => {
               title="Knowable A"
               observations={focusedSelf.observations.knowable_1}
               category="knowable_1"
+              highlightClass={getTutorialHighlight('knowable-1-section')}
             />
-            <div className="bg-gray-200 dark:bg-gray-700 p-4 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400 text-sm">
+            <div className={`${theme === 'colorblind' ? 'bg-gray-100 border-2 border-dashed border-gray-600' : 'bg-gray-200 dark:bg-gray-700'} p-4 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400 text-sm`}>
               <div className="text-center">
-                <div className="font-medium">Unknown</div>
+                <div className="font-medium flex items-center justify-center">
+                  {theme === 'colorblind' && <span className="mr-2 text-lg font-bold">?</span>}
+                  Unknown
+                  <Tooltip text="The things you don't know you don't know. This stays empty - it represents what lies beyond current imagination." />
+                </div>
                 <div className="text-xs mt-1">Remains empty by definition</div>
               </div>
             </div>
@@ -846,17 +1257,19 @@ const ResolverApp = () => {
               title="Known"
               observations={focusedSelf.observations.known}
               category="known"
+              highlightClass={getTutorialHighlight('known-section')}
             />
             <ObservationCard
               title="Knowable B"
               observations={focusedSelf.observations.knowable_2}
               category="knowable_2"
+              highlightClass={getTutorialHighlight('knowable-2-section')}
             />
           </div>
 
           {/* Notes Section */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-            <h3 className="font-medium mb-3 flex items-center justify-between">
+            <h3 className="font-medium mb-3 flex items-center justify-between dark:text-white">
               <div className="flex items-center">
                 <StickyNote className="mr-2" size={16} />
                 Notes for {focusedSelf.name}
@@ -864,7 +1277,7 @@ const ResolverApp = () => {
               {!editingNotes && (
                 <button
                   onClick={() => setEditingNotes(true)}
-                  className="text-indigo-600 hover:text-indigo-800 text-sm"
+                  className="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 text-sm"
                 >
                   <Edit2 size={14} />
                 </button>
@@ -915,6 +1328,8 @@ const ResolverApp = () => {
         </div>
         {showObservationModal && <ObservationModal />}
         {showDeleteConfirm && <DeleteConfirmModal />}
+        {tutorialMode && <TutorialOverlay />}
+        <PrivacyFooter />
       </>
     );
   }
@@ -922,7 +1337,7 @@ const ResolverApp = () => {
   // Board view - multiple selves
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-900 dark:to-gray-800 p-4">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-900 dark:to-gray-800 p-4 pb-12">
         <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold dark:text-white">Your Resolver Board</h1>
@@ -932,7 +1347,7 @@ const ResolverApp = () => {
             </div>
             <button
               onClick={() => setShowResetConfirm(true)}
-              className="text-xs text-red-600 hover:text-red-800 underline dark:text-red-400 dark:hover:text-red-300"
+              className="text-xs px-3 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 rounded hover:bg-indigo-200 dark:hover:bg-indigo-800 transition-colors"
             >
               Start Fresh
             </button>
@@ -941,10 +1356,18 @@ const ResolverApp = () => {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {selves.map((self) => (
+          {selves.map((self, index) => (
             <div
               key={self.id}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow relative"
+              className={`rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow relative ${
+                theme === 'colorblind'
+                  ? `bg-white border-2 ${
+                      index === 0 ? 'border-slate-700' :
+                      index === 1 ? 'border-blue-700' :
+                      'border-amber-700'
+                    }`
+                  : 'bg-white dark:bg-gray-800'
+              }`}
             >
               <button
                 onClick={(e) => {
@@ -961,8 +1384,8 @@ const ResolverApp = () => {
                 className="cursor-pointer"
               >
                 <div className="flex items-center mb-4 pr-8">
-                  <User className="text-indigo-600 mr-2" size={20} />
-                  <h3 className="font-bold">{self.name}</h3>
+                  <User className="text-indigo-600 dark:text-indigo-400 mr-2" size={20} />
+                  <h3 className="font-bold dark:text-white">{self.name}</h3>
                 </div>
                 
                 <div className="space-y-2 text-xs text-gray-600 dark:text-gray-400">
@@ -973,7 +1396,7 @@ const ResolverApp = () => {
                   </div>
                 </div>
                 
-                <div className="mt-4 text-xs text-indigo-600">
+                <div className="mt-4 text-xs text-indigo-600 dark:text-indigo-400">
                   Click to focus →
                 </div>
               </div>
@@ -981,9 +1404,13 @@ const ResolverApp = () => {
           ))}
 
           {selves.length < 3 && (
-            <div 
+            <div
               onClick={() => setShowCreateModal(true)}
-              className="bg-gray-100 rounded-lg shadow-lg p-6 cursor-pointer hover:shadow-xl transition-shadow border-2 border-dashed border-gray-300 flex items-center justify-center hover:border-indigo-300 hover:bg-indigo-50"
+              className={`rounded-lg shadow-lg p-6 cursor-pointer hover:shadow-xl transition-shadow flex items-center justify-center ${
+                theme === 'colorblind'
+                  ? 'bg-white border-2 border-dashed border-gray-700 hover:border-indigo-700 hover:bg-gray-50'
+                  : 'bg-gray-100 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-indigo-300 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-gray-700'
+              }`}
             >
               <div className="text-center text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400">
                 <Plus size={24} className="mx-auto mb-2" />
@@ -994,8 +1421,8 @@ const ResolverApp = () => {
         </div>
 
         {/* Global Notes Section */}
-        <div className="mt-8 bg-white rounded-lg shadow p-4">
-          <h3 className="font-medium mb-3 flex items-center justify-between">
+        <div className="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+          <h3 className="font-medium mb-3 flex items-center justify-between dark:text-white">
             <div className="flex items-center">
               <StickyNote className="mr-2" size={16} />
               Resolver Notes
@@ -1003,7 +1430,7 @@ const ResolverApp = () => {
             {!editingNotes && (
               <button
                 onClick={() => setEditingNotes(true)}
-                className="text-indigo-600 hover:text-indigo-800 text-sm"
+                className="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 text-sm"
               >
                 <Edit2 size={14} />
               </button>
@@ -1014,7 +1441,7 @@ const ResolverApp = () => {
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="w-full h-40 border rounded p-3 text-sm font-mono"
+                className="w-full h-40 border rounded p-3 text-sm font-mono dark:bg-gray-900 dark:text-gray-100 dark:border-gray-600"
                 placeholder="Write your notes here... Supports markdown formatting!"
               />
               <div className="mt-2 flex justify-between">
@@ -1031,7 +1458,7 @@ const ResolverApp = () => {
             </div>
           ) : (
             <div className="prose prose-sm max-w-none">
-              <div className="bg-gray-50 rounded p-3 text-sm whitespace-pre-wrap font-mono text-gray-700"
+              <div className="bg-gray-50 dark:bg-gray-900 rounded p-3 text-sm whitespace-pre-wrap font-mono text-gray-700 dark:text-gray-200"
                    style={{ minHeight: '6rem' }}
                    dangerouslySetInnerHTML={{
                      __html: notes
@@ -1057,6 +1484,8 @@ const ResolverApp = () => {
       </div>
       {showDeleteConfirm && <DeleteConfirmModal />}
       {showResetConfirm && <ResetConfirmModal />}
+      {tutorialMode && <TutorialOverlay />}
+      <PrivacyFooter />
     </>
   );
 };

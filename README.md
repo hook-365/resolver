@@ -1,6 +1,6 @@
 # 🧠 Resolver
 
-> A consciousness mapping application for understanding and managing the multiple aspects of your identity
+> A tool for coming home to yourself so thoroughly that others can find you there too
 
 [![React](https://img.shields.io/badge/React-19.1-61dafb?logo=react)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-5.4-646cff?logo=vite)](https://vitejs.dev/)
@@ -9,7 +9,9 @@
 
 ## 🌟 Overview
 
-Resolver helps you model different "selves" - the various roles and identities you embody in life (Work Me, Parent Me, Creative Me, etc.). Each self has its own observations organized in a 2x2 consciousness framework that explores what you know, what you could know, and what remains unknown.
+Resolver is a consciousness mapping application based on the [Resolver pattern](https://www.isaacbowen.com/2025/06/04/resolver) - a conceptual framework for processing awareness and self-transformation. It treats identity as a dynamic retrieval process rather than fixed storage, allowing continuous self-modification through reassigning the "pointers" between your experience of awareness, your sense of self, and the authorities that legitimize your experience.
+
+The app helps you model different "selves" - the various roles and identities you embody in life (Work Me, Parent Me, Creative Me, etc.). Each self has its own observations organized in a consciousness framework that explores what you know, what you could know, and what remains unknown. The authority structure for each self determines whether it's self-directed or defers to external validation.
 
 ### ✨ Key Features
 
@@ -131,11 +133,18 @@ resolver/
 └── package.json
 ```
 
-## 🎯 Philosophy
+## 🎯 Philosophy & Concept
 
 > "This will probably feel like relief, followed by friction and frustration, followed by breakthrough and then relief again. This product is simple to use, but your experience may not be easy."
 
-Resolver is designed for deep introspection and self-understanding. It provides a structured framework for examining the different aspects of your identity and their relationships. The journey of self-discovery it facilitates may be challenging, but the insights gained can be transformative.
+Resolver implements the [Resolver consciousness framework](https://www.isaacbowen.com/2025/06/04/resolver), which views consciousness as a hierarchical structure: **[ experience of awareness ] < [ self ] < [ authority ]**. The key insight is that the pointers between these layers are mutable - you can voluntarily transform your ego by reconfiguring how your selves relate to their authorities.
+
+The framework operates through three interconnected functions:
+- **Know**: Understanding your current state of awareness
+- **Resolve**: Activating when your current self-understanding breaks down
+- **Love**: Integrating new information and experiences
+
+This approach enables "intersubjective compatibility" - legitimizing your own experience while maintaining compatibility with how others experience you. It's a tool for adaptive awareness and continuous growth through self-integration.
 
 ## 🚧 Roadmap
 
@@ -176,6 +185,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
+- Based on the [Resolver pattern](https://www.isaacbowen.com/2025/06/04/resolver) by Isaac Bowen
 - Inspired by consciousness mapping and identity frameworks
 - Built with love for self-reflection and personal growth
 - Special thanks to all contributors and early testers
